@@ -1,39 +1,43 @@
 # Java Challenge
 
-Ten short senior-level Java backend interview tasks.
+Ten self-contained senior Java backend interview exercises, each with an implementation and a JDK-only regression test.
 
 ## Requirements
 
-- Linux
-- JDK 25 or newer
+- Linux (or another system with Bash)
+- JDK 21 or newer (the original scaffold targeted JDK 25)
 - No third-party dependencies
 
-Check Java:
+## Run all tests
 
 ```bash
-java --version
-javac --version
+./test-all.sh
 ```
 
-Each task is self-contained under `tasks/` and includes:
+Each task also compiles on its own:
 
-- a short interview-style question
-- a small compilable scaffold
-- Linux build/run commands
+```bash
+cd tasks/001-virtual-thread-bulkhead
+javac -d out src/Main.java src/Test.java
+java -ea -cp out Test
+java -cp out Main
+```
 
-No solutions are included.
+The tests use Java assertions, so **always pass `-ea`**.
 
 ## Tasks
 
-1. `001-virtual-thread-bulkhead` — bound a virtual-thread workload around a scarce dependency
-2. `002-bounded-executor-backpressure` — implement bounded submission/backpressure
-3. `003-idempotency-store` — make duplicate request handling concurrency-safe
-4. `004-ttl-cache-stampede` — build a TTL cache that coalesces concurrent misses
-5. `005-token-bucket-rate-limiter` — implement a thread-safe token bucket
-6. `006-completable-future-deadline` — aggregate parallel calls under one deadline
-7. `007-transactional-outbox` — model atomic business state + outbox publishing
-8. `008-optimistic-locking-inventory` — prevent lost updates with version checks
-9. `009-tcp-length-prefixed-decoder` — decode fragmented TCP frames safely
-10. `010-deadlock-free-transfer` — transfer between accounts without deadlock
+1. `001-virtual-thread-bulkhead` — limit simultaneous scarce-dependency calls with a semaphore
+2. `002-bounded-executor-backpressure` — bounded queue, blocking submit, graceful shutdown
+3. `003-idempotency-store` — per-key execution coalescing and cached outcomes
+4. `004-ttl-cache-stampede` — coalesce concurrent cache loads and expire values
+5. `005-token-bucket-rate-limiter` — monotonic-time, thread-safe token bucket
+6. `006-completable-future-deadline` — parallel calls with one deadline and cancellation
+7. `007-transactional-outbox` — atomic order and outbox-row insertion
+8. `008-optimistic-locking-inventory` — compare-and-set with bounded retries
+9. `009-tcp-length-prefixed-decoder` — incremental framing across arbitrary TCP reads
+10. `010-deadlock-free-transfer` — atomic transfers using deterministic lock ordering
 
-These tasks intentionally use JDK APIs only so the interview focus stays on Java/backend reasoning rather than framework setup.
+For concise explanations and complexity notes, see [INTERVIEW_NOTES.md](INTERVIEW_NOTES.md).
+
+The implementations intentionally use JDK APIs only; the in-memory designs in tasks 003, 004, 007 and 008 are teaching examples rather than full distributed/production services.

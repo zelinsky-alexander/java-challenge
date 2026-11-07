@@ -1,3 +1,4 @@
+import java.util.Objects;
 import java.util.UUID;
 
 public class Main {
@@ -18,16 +19,25 @@ public class Main {
         private final Database database;
 
         OrderService(Database database) {
-            this.database = database;
+            this.database = Objects.requireNonNull(database);
         }
 
         UUID placeOrder(String customerId) throws Exception {
-            // TODO
-            throw new UnsupportedOperationException("TODO");
+            Objects.requireNonNull(customerId);
+            if (customerId.isBlank()) throw new IllegalArgumentException("customerId must not be blank");
+            return database.inTransaction(() -> {
+                UUID orderId = UUID.randomUUID();
+                Transaction tx = database.currentTransaction();
+                tx.insertOrder(new Order(orderId, customerId));
+                // Event ID is stable in the committed outbox row for publisher deduplication.
+                tx.insertOutbox(new OutboxEvent(UUID.randomUUID(), orderId,
+                        "OrderCreated", customerId));
+                return orderId;
+            });
         }
     }
 
     public static void main(String[] args) {
-        System.out.println("Task 007: implement OrderService.placeOrder()");
+        System.out.println("Provide a transactional Database implementation to call OrderService.placeOrder().");
     }
 }
